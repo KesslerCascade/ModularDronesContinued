@@ -179,12 +179,7 @@ public class DroneController {
             tryAxisSlideMovement(player.getWorld(), serverData, powerMultiplier);
         } else if (positionBlocked) {  // just hit an obstacle, start ghosting CD
             serverData.currentVelocity = Vec3d.ZERO;
-            serverData.ghostWaitTime = 14;
-            
-            if (player.getWorld() instanceof ServerWorld serverWorld) {
-                var middle = serverData.currentPosition;
-                serverWorld.spawnParticles(ParticleTypes.PORTAL, middle.x, middle.y, middle.z, 15, 0, 0, 0, 0.2f);
-            }
+            serverData.ghostWaitTime = 40;
         } else {    // normal movement
             serverData.currentPosition = nextPosition;
             serverData.ghostTicks = 0;
