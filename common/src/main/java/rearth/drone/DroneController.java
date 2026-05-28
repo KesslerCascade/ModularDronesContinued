@@ -180,19 +180,33 @@ public class DroneController {
         }
         
         if (Platform.isModLoaded("accessories") && playerEntity.accessoriesCapability() != null && playerEntity.accessoriesCapability().getContainers() != null) {
-            var headCosmetic = playerEntity.accessoriesCapability().getContainers().get("accessories:head");
+            var containers = playerEntity.accessoriesCapability().getContainers();
             
-            if (headCosmetic == null)
-                return Optional.empty();
-            
-            for (var pair : headCosmetic.getCosmeticAccessories()) {
-                var candidate = pair.getSecond();
-                if (candidate.isOf(ItemContent.POCKET_DRONE.get()) && candidate.contains(ComponentContent.DRONE_DATA_TYPE.get())) {
-                    
-                    var droneData = candidate.get(ComponentContent.DRONE_DATA_TYPE.get());
-                    if (droneData == null) return Optional.empty();
-                    return Optional.of(droneData);
-                    
+            var droneSlot = containers.get("drone");
+            if (droneSlot != null) {
+                for (var pair : droneSlot.getAccessories()) {
+                    var candidate = pair.getSecond();
+                    if (candidate.isOf(ItemContent.POCKET_DRONE.get())
+                            && candidate.contains(ComponentContent.DRONE_DATA_TYPE.get())) {
+                        var droneData = candidate.get(ComponentContent.DRONE_DATA_TYPE.get());
+                        if (droneData == null)
+                            return Optional.empty();
+                        return Optional.of(droneData);
+                    }
+                }
+            }
+
+            var headCosmetic = containers.get("accessories:head");
+            if (headCosmetic != null) {
+                for (var pair : headCosmetic.getCosmeticAccessories()) {
+                    var candidate = pair.getSecond();
+                    if (candidate.isOf(ItemContent.POCKET_DRONE.get())
+                            && candidate.contains(ComponentContent.DRONE_DATA_TYPE.get())) {
+                        var droneData = candidate.get(ComponentContent.DRONE_DATA_TYPE.get());
+                        if (droneData == null)
+                            return Optional.empty();
+                        return Optional.of(droneData);
+                    }
                 }
             }
         }
