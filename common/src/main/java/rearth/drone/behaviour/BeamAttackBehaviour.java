@@ -28,7 +28,7 @@ public class BeamAttackBehaviour extends ArrowAttackBehaviour {
     }
     
     @Override
-    public void performAttack(double dist, Vec3d shotFrom) {
+    public boolean performAttack(double dist, Vec3d shotFrom) {
         var world = this.owner.getWorld();
         
         this.target.damage(new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(DamageTypes.PLAYER_ATTACK)), ATTACK_DAMAGE);
@@ -38,6 +38,8 @@ public class BeamAttackBehaviour extends ArrowAttackBehaviour {
         if (world instanceof ServerWorld serverWorld) {
             spawnBeamLine(this.drone.currentPosition, target.getEyePos(), serverWorld);
         }
+        
+        return true;
     }
     
     private void spawnBeamLine(Vec3d from, Vec3d to, ServerWorld world) {
@@ -67,7 +69,7 @@ public class BeamAttackBehaviour extends ArrowAttackBehaviour {
     public int getAttackCooldown() {
         return 30;
     }
-    
+
     public static class BeamAttackSensor extends ArrowAttackSensor {
         
         @Override
@@ -80,6 +82,11 @@ public class BeamAttackBehaviour extends ArrowAttackBehaviour {
             return super.getTargetingRange() + 8;
         }
         
+        @Override
+        public boolean shootsProjectile() {
+            return false;
+        }
+
         @Override
         public void onTargetFound(DroneServerData drone, PlayerEntity player, LivingEntity target) {
             drone.setCurrentTask(new BeamAttackBehaviour(target, player, drone));
