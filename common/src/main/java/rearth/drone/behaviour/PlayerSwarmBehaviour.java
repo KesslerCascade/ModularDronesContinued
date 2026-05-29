@@ -55,10 +55,6 @@ public class PlayerSwarmBehaviour implements DroneBehaviour {
         var playerHead = owner.getEyePos();
         var overheadCenter = playerHead.add(0, 0.5f, 0);
 
-        var desired = getDesiredPosition();
-        if (desired != null && isPositionClearRadius(desired, 0.5))
-            return desired;
-        
         var playerYaw = Math.toRadians(owner.headYaw - 90);
         var playerBackDir = new Vec3d(Math.cos(playerYaw), 0, Math.sin(playerYaw)).normalize();
         
@@ -68,6 +64,15 @@ public class PlayerSwarmBehaviour implements DroneBehaviour {
         var x = SIMPLEX.sample(sampledX, 0);
         var y = SIMPLEX.sample(sampledX, 5000);
         var z = SIMPLEX.sample(sampledX + 5000, 5000);
+
+        var desired = getDesiredPosition();
+        if (desired != null) {
+            var noisyDesired = desired.add(new Vec3d(x * 0.5, y / 6, z * 0.5));
+            if (isPositionClearRadius(noisyDesired, 0.5))
+                return noisyDesired;
+            if (isPositionClearRadius(desired, 0.5))
+                return desired;
+        }
         
         var noiseOverhead = overheadCenter.add(new Vec3d(x, y / 3, z)).add(playerBackDir.multiply(0.9f));
         if (isPositionClearRadius(noiseOverhead, 0.5))
