@@ -48,7 +48,8 @@ public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
         
         if (target.isRemoved() || !target.isAlive() || !target.isAttackable()) finishTask();
         
-        var shotFrom = this.drone.currentPosition.add(0, 0.25, 0);
+        var toTarget = target.getEyePos().subtract(this.drone.currentPosition).normalize();
+        var shotFrom = this.drone.currentPosition.add(toTarget.multiply(0.5));
         var dist = shotFrom.distanceTo(target.getEyePos());
         if (dist > MAX_RANGE) finishTask();
         
@@ -63,8 +64,10 @@ public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
     public boolean performAttack(double dist, Vec3d shotFrom) {
         
         var world = owner.getWorld();
-        var targetPos = target.getEyePos().add(0, dist / 10f, 0); // adjust target slightly up for longer distances to
-                                                                  // hit
+        // for small mobs (babies etc.), aim at body center instead of eye to avoid overshooting the hitbox
+        var entityHeight = target.getBoundingBox().getLengthY();
+        var aimBase = entityHeight < 1.0 ? target.getPos().add(0, entityHeight * 0.5, 0) : target.getEyePos();
+        var targetPos = aimBase.add(0, dist / 10f, 0); // adjust target slightly up for longer distances to hit
 
         // abort if drone no longer has LOS to target (check both actual entity pos and
         // adjusted aim pos)
