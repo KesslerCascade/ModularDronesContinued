@@ -58,7 +58,15 @@ public class DroneRenderer {
             
             var deltaDronePos = Helpers.lerp(lastPos, newPos, 0.1f);
             lastPositions.put(dronePlayer, deltaDronePos);
-            var deltaDroneRot = Helpers.lerp(lastRot, newRot, 0.02f);
+
+            var rotDelta = newRot.subtract(lastRot);
+            var rotDist = (float) rotDelta.length();
+            var minRotFactor = 0.05f;
+            var maxRotFactor = 0.15f;
+            var aggressiveThreshold = 30.0f;
+            var aggressiveness = Math.min(1.0f, rotDist / aggressiveThreshold);
+            var rotFactor = minRotFactor + aggressiveness * (maxRotFactor - minRotFactor);
+            var deltaDroneRot = Helpers.lerp(lastRot, newRot, rotFactor);
             lastRotations.put(dronePlayer, deltaDroneRot);
             
             matrices.push();
