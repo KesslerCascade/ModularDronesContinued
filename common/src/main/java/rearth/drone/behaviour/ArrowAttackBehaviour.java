@@ -29,7 +29,10 @@ import java.util.HashMap;
 public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
     
     private static final int MAX_RANGE = 25;
-    
+    private static final int MAX_CONSECUTIVE_FAILED_ATTACKS = 14;
+
+    private int consecutiveFailedAttacks = 0;
+
     public final LivingEntity target;
     public final PlayerEntity owner;
     public final DroneServerData drone;
@@ -46,16 +49,29 @@ public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
         
         super.tick();
         
-        if (target.isRemoved() || !target.isAlive() || !target.isAttackable()) finishTask();
+        if (target.isRemoved() || !target.isAlive() || !target.isAttackable()) {
+            finishTask();
+            return;
+        }
         
         var toTarget = target.getEyePos().subtract(this.drone.currentPosition).normalize();
         var shotFrom = this.drone.currentPosition.add(toTarget.multiply(0.5));
         var dist = shotFrom.distanceTo(target.getEyePos());
-        if (dist > MAX_RANGE) finishTask();
+        if (dist > MAX_RANGE) {
+            finishTask();
+            return;
+        }
         
         if (drone.actionCooldown == 0) {
             if (performAttack(dist, shotFrom)) {
+                consecutiveFailedAttacks = 0;
                 drone.actionCooldown = getAttackCooldown();
+            } else {
+                consecutiveFailedAttacks++;
+                if (consecutiveFailedAttacks > MAX_CONSECUTIVE_FAILED_ATTACKS) {
+                    finishTask();
+                    return;
+                }
             }
         }
         
