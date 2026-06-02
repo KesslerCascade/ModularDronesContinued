@@ -137,6 +137,9 @@ public class DroneController {
         
         var currentVelocity = serverData.currentVelocity;
         var targetOffset = serverData.targetPosition.subtract(serverData.currentPosition);
+        var maxOffset = powerMultiplier / 2.0;
+        if (targetOffset.length() > maxOffset)
+            targetOffset = targetOffset.normalize().multiply(maxOffset);
         var velocityDelta = targetOffset.subtract(currentVelocity);
         
         // 2 movement modes:
