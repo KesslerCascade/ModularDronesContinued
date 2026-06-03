@@ -109,7 +109,7 @@ public class NetworkContent {
 
         public static final PacketCodec<RegistryByteBuf, DroneCarriedItemPacket> PACKET_CODEC = PacketCodec.tuple(
                 PacketCodecs.INTEGER, DroneCarriedItemPacket::droneId,
-                ItemStack.PACKET_CODEC, DroneCarriedItemPacket::carriedItem,
+                ItemStack.OPTIONAL_PACKET_CODEC, DroneCarriedItemPacket::carriedItem,
                 DroneCarriedItemPacket::new);
 
         @Override

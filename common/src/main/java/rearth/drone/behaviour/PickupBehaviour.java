@@ -58,7 +58,7 @@ public class PickupBehaviour implements DroneBehaviour {
                     break;
                 }
 
-                drone.targetPosition = target.getEyePos();
+                drone.targetPosition = target.getPos().add(0, 0.5, 0);
 
                 var playerDist = drone.currentPosition.distanceTo(owner.getEyePos());
                 if (playerDist > MAX_RANGE) {
@@ -66,7 +66,7 @@ public class PickupBehaviour implements DroneBehaviour {
                     break;
                 }
 
-                var targetDist = drone.currentPosition.distanceTo(target.getEyePos());
+                var targetDist = drone.currentPosition.distanceTo(target.getPos().add(0, 0.5, 0));
                 if (targetDist < PICKUP_RANGE) {
                     collectItem();
                 }

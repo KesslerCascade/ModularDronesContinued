@@ -120,8 +120,7 @@ public class DroneRenderer {
             var carriedItem = DronesClient.CARRIED_ITEMS.get(droneData.getDroneId());
             if (carriedItem != null && !carriedItem.isEmpty()) {
                 matrices.push();
-                matrices.translate(0, -0.15, 0);
-                matrices.scale(0.3f, 0.3f, 0.3f);
+                matrices.translate(0, -0.5, 0);
                 var itemLight = getMaxLight(BlockPos.ofFloored(movementData.position()), world);
                 MinecraftClient.getInstance().getItemRenderer().renderItem(
                   carriedItem,
