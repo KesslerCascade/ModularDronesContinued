@@ -5,6 +5,8 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -141,7 +143,11 @@ public class PickupBehaviour implements DroneBehaviour {
 
     private void deliverItem() {
         var toDeliver = drone.carriedItem.copy();
+        var countBefore = toDeliver.getCount();
         owner.getInventory().insertStack(toDeliver);
+        if (toDeliver.getCount() < countBefore) {
+            owner.getWorld().playSound(null, owner.getBlockPos(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((owner.getRandom().nextFloat() - owner.getRandom().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+        }
 
         if (!toDeliver.isEmpty() && owner.getWorld() instanceof ServerWorld serverWorld) {
             // Inventory full - drop remainder at drone position
