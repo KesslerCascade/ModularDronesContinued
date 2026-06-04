@@ -158,37 +158,48 @@ public class DroneController {
         if (targetOffset.length() > maxOffset)
             targetOffset = targetOffset.normalize().multiply(maxOffset);
         var velocityDelta = targetOffset.subtract(currentVelocity);
-        
+
+        // Reset ramp when hovering or target is behind us
+        if (currentVelocity.length() < 0.1) {
+            serverData.accelerationRamp = 0.15f;
+        } else if (targetOffset.length() > 0.01) {
+            var dot = currentVelocity.normalize().dotProduct(targetOffset.normalize());
+            if (dot < 0.0) {
+                serverData.accelerationRamp = 0.15f;
+            }
+        }
+        serverData.accelerationRamp = Math.min(1.0f, serverData.accelerationRamp + 0.15f);
+        var effectiveDelta = velocityDelta.multiply(serverData.accelerationRamp);
+
         // 2 movement modes:
         // horizontal thrusters only
         // thrusters for forward and up
         // currently only mode 1 is implemented and available
-        
+
         // mode 1:
         // angle the model on all axis. Model forward points to the player forward, and acceleration is achieved by tilting the body in the right direction
         // this is similar to a quadcopter
         var rotationAngle = serverData.currentRotation.y;
-        var bankX = Math.clamp(velocityDelta.z * -bankingFactor, -45, 45);
-        var bankZ = Math.clamp(velocityDelta.x * bankingFactor, -45, 45);
-        
-        var acceleration = velocityDelta.length();
+        var bankX = Math.clamp(effectiveDelta.z * -bankingFactor, -45, 45);
+        var bankZ = Math.clamp(effectiveDelta.x * bankingFactor, -45, 45);
+
+        var acceleration = effectiveDelta.length();
         var spawnChance = acceleration - 0.5f;
-        
+
         if (player.getWorld().getRandom().nextFloat() < spawnChance && player.getWorld() instanceof ServerWorld serverWorld) {
             serverWorld.spawnParticles(ParticleTypes.SMALL_GUST, serverData.currentPosition.x, serverData.currentPosition.y - 0.2f, serverData.currentPosition.z, 1,
               0.1f, 0.1, 0.1,
               0.1f);
         }
-        
+
         if (serverData.getCurrentTask() != null) {
             rotationAngle = serverData.getCurrentTask().getCurrentYaw();
             bankX += serverData.getCurrentTask().getExtraRoll();
         }
-        
-        
+
         serverData.currentRotation = new Vec3d(bankX, rotationAngle, bankZ);
-        
-        serverData.currentVelocity = currentVelocity.add(velocityDelta.multiply(accelerationPower));
+
+        serverData.currentVelocity = currentVelocity.add(effectiveDelta.multiply(accelerationPower));
         
         var nextPosition = serverData.currentPosition.add(serverData.currentVelocity.multiply(powerMultiplier / 20f));
         

@@ -27,6 +27,7 @@ public class DroneServerData {
     public int ghostWaitTime = 0;
     public int actionCooldown = 0;
     public int taskCooldown = 0;
+    public float accelerationRamp = 0.15f;
     
     // pickup inventory
     public @NotNull ItemStack carriedItem = ItemStack.EMPTY;
