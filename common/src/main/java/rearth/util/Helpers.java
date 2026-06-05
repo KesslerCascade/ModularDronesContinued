@@ -126,16 +126,25 @@ public class Helpers {
         return a + f * (b - a);
     }
     
+    // Max squared distance for raycasts — guards against far teleports producing
+    // absurdly long rays that walk through thousands of chunks and time out the
+    // server tick.
+    private static final double MAX_RAYCAST_DIST_SQ = 50 * 50;
+
     public static boolean isLineAvailable(World world, Vec3d to, Vec3d from) {
+        if (from.squaredDistanceTo(to) > MAX_RAYCAST_DIST_SQ)
+            return false;
         var context = new RaycastContext(from, to, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, ShapeContext.absent());
         var result = world.raycast(context);
         return result.getType() == HitResult.Type.MISS;
     }
-    
+
     public static boolean isPositionAvailable(World world, Vec3d pos, Vec3d from) {
+        if (from.squaredDistanceTo(pos) > MAX_RAYCAST_DIST_SQ)
+            return false;
         var backDir = from.subtract(pos).normalize();
         var start = pos.add(backDir.multiply(0.5f));
-        
+
         var context = new RaycastContext(start, pos, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, ShapeContext.absent());
         var result = world.raycast(context);
         return result.getType() == HitResult.Type.MISS;
