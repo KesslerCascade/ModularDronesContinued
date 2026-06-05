@@ -50,6 +50,9 @@ public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
         this.owner = owner;
         this.drone = drone;
         this.assignedPriority = priority;
+
+        // give the drone half a second to move towards the target before it fires
+        drone.actionCooldown = Math.max(drone.actionCooldown, 10);
     }
 
     @Override
