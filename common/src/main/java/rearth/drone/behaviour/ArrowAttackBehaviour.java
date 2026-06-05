@@ -153,7 +153,8 @@ public class ArrowAttackBehaviour extends PlayerSwarmBehaviour {
     public Vec3d getDesiredPosition() {
         if (target == null || target.isRemoved() || !target.isAlive())
             return null;
-        var direction = target.getEyePos().subtract(owner.getEyePos()).normalize();
+        var diff = target.getEyePos().subtract(owner.getEyePos());
+        var direction = new Vec3d(diff.x, 0, diff.z).normalize();
         return owner.getEyePos().add(0, 1.0f, 0).add(direction.multiply(1.2f));
     }
 
