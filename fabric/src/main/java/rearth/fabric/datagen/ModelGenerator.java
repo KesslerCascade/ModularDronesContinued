@@ -1,5 +1,8 @@
 package rearth.fabric.datagen;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.core.Direction;
@@ -13,19 +16,26 @@ import net.minecraft.data.models.model.ModelLocationUtils;
 import net.minecraft.data.models.model.ModelTemplates;
 import net.minecraft.data.models.model.TextureMapping;
 import net.minecraft.data.models.model.TextureSlot;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import rearth.init.BlockContent;
 import rearth.init.ItemContent;
 
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
+
 public class ModelGenerator extends FabricModelProvider {
-    
+
+    private BiConsumer<ResourceLocation, Supplier<JsonElement>> modelOutput;
+
     public ModelGenerator(FabricDataOutput output) {
         super(output);
     }
-    
+
     @Override
     public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
+        modelOutput = blockStateModelGenerator.modelOutput;
         blockStateModelGenerator.createNonTemplateModelBlock(BlockContent.WOOD_ROTOR.get());
         blockStateModelGenerator.createNonTemplateModelBlock(BlockContent.IRON_ROTOR.get());
         blockStateModelGenerator.createNonTemplateModelBlock(BlockContent.ION_THRUSTER.get());
@@ -71,7 +81,28 @@ public class ModelGenerator extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerators itemModelGenerator) {
-        itemModelGenerator.generateFlatItem(ItemContent.POCKET_DRONE.get(), ModelTemplates.FLAT_ITEM);
+        var drone = ItemContent.POCKET_DRONE.get();
+        var location = ModelLocationUtils.getModelLocation(drone);
+
+        // items equipped in the head slot are rendered above the player's head by default
+        // (via CustomHeadLayer); a zero scale collapses that render to nothing, hiding it
+        ModelTemplates.FLAT_ITEM.create(location, TextureMapping.layer0(drone), modelOutput, (modelLocation, textures) -> {
+            var json = ModelTemplates.FLAT_ITEM.createBaseTemplate(modelLocation, textures);
+
+            var scale = new JsonArray();
+            scale.add(0);
+            scale.add(0);
+            scale.add(0);
+
+            var head = new JsonObject();
+            head.add("scale", scale);
+
+            var display = new JsonObject();
+            display.add("head", head);
+            json.add("display", display);
+
+            return json;
+        });
     }
     
     public void registerFrame(Block block, BlockModelGenerators blockStateModelGenerator) {
