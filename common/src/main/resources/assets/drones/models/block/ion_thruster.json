@@ -3,7 +3,8 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"2": "drones:block/ion_pulse",
-		"3": "drones:block/ion_thruster"
+		"3": "drones:block/ion_thruster",
+		"particle": "drones:block/ion_thruster"
 	},
 	"elements": [
 		{

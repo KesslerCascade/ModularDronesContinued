@@ -1,14 +1,18 @@
 package rearth.client.renderers;
 
+import rearth.Drones;
 import rearth.DronesClient;
 import rearth.drone.DroneController;
 import rearth.drone.DroneData;
 import rearth.drone.RecordedBlock;
 import rearth.init.NetworkContent.DroneMoveSyncPacket;
+import rearth.init.ParticleContent;
 import rearth.util.FloodFill;
 import rearth.util.Helpers;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import net.minecraft.client.Camera;
@@ -16,7 +20,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -30,11 +36,17 @@ import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class DroneRenderer {
-    
+
     private static final HashMap<Player, Vec3> lastPositions = new HashMap<>();
     private static final HashMap<Player, Vec3> lastRotations = new HashMap<>();
+
+    private static final RenderType ION_GLOW_RENDER_TYPE = RenderType.eyes(Drones.id("textures/block/ion_glow.png"));
+    private static final float ION_TRAIL_SPAWN_CHANCE = 1f / 8f;
+    private static final float ION_TRAIL_IDLE_CHANCE_SCALE = 0.05f;
+    private static final double ION_TRAIL_VELOCITY_THRESHOLD = 0.05;
     
     public static void doRender(PoseStack matrices, Camera camera, MultiBufferSource vertexConsumers) {
         var world = Minecraft.getInstance().level;
@@ -60,7 +72,7 @@ public class DroneRenderer {
             var lastRot = lastRotations.computeIfAbsent(dronePlayer, player -> movementData.rotation());
             var newPos = movementData.position();
             var newRot = movementData.rotation();
-            
+
             // adjust for switch from angle -180 to 180 on Y rotation axis
             var rotDistY = Math.abs(lastRot.y - newRot.y);
             var altRotDistY = Math.abs(-lastRot.y - newRot.y);
@@ -72,6 +84,7 @@ public class DroneRenderer {
             
             var posAlpha = (float) (1.0 - Math.pow(0.9, ftScale));
             var deltaDronePos = Helpers.lerp(lastPos, newPos, posAlpha);
+            var velocity = deltaDronePos.subtract(lastPos);
             lastPositions.put(dronePlayer, deltaDronePos);
 
             var rotDelta = newRot.subtract(lastRot);
@@ -96,12 +109,21 @@ public class DroneRenderer {
             matrices.mulPose(Axis.YP.rotationDegrees((float) -deltaDroneRot.y));
             
             
+            var ionGlowPositions = new ArrayList<Vector3f>();
+
             for (var blockData : droneData.getBlocks()) {
                 var localOffset = blockData.localPos();
                 var state = blockData.state();
-                
+
                 var scaledLocalOffset = Vec3.atLowerCornerOf(localOffset).add(-0.5f, -0.5f, -0.5f).scale(targetScale);
-                
+
+                if (droneData.getIonThrusterPositions().contains(localOffset)) {
+                    var center = Vec3.atLowerCornerOf(localOffset).add(0, -0.05f, 0).scale(targetScale);
+                    var centerVec = new Vector3f((float) center.x, (float) center.y, (float) center.z);
+                    matrices.last().pose().transformPosition(centerVec);
+                    ionGlowPositions.add(centerVec);
+                }
+
                 matrices.pushPose();
                 matrices.translate(scaledLocalOffset.x, scaledLocalOffset.y, scaledLocalOffset.z);
                 matrices.scale(targetScale, targetScale, targetScale);
@@ -154,12 +176,72 @@ public class DroneRenderer {
                 );
                 matrices.popPose();
             }
-            
+
+            // render additive glow billboards for ion thruster blocks
+            if (!ionGlowPositions.isEmpty()) {
+                var glowBuffer = vertexConsumers.getBuffer(ION_GLOW_RENDER_TYPE);
+                for (var glowCenter : ionGlowPositions) {
+                    renderGlowQuad(glowBuffer, glowCenter, targetScale, camera);
+                }
+            }
+
             matrices.popPose();
+
+            // spawn occasional ion trail particles when the drone is moving, or rarely even when idle
+            var velocityThreshold = ION_TRAIL_VELOCITY_THRESHOLD * frameTimeTicks;
+            var isMoving = velocity.lengthSqr() > velocityThreshold * velocityThreshold;
+            if (!droneData.getIonThrusterPositions().isEmpty()) {
+                var chanceScale = isMoving ? 1f : ION_TRAIL_IDLE_CHANCE_SCALE;
+                spawnIonTrailParticle(world, droneData, movementData, deltaDroneRot, velocity, targetScale, frameTimeTicks, chanceScale);
+            }
         }
         
     }
     
+    private static void renderGlowQuad(VertexConsumer buffer, Vector3f center, float size, Camera camera) {
+        var rotation = camera.rotation();
+        var half = size * 0.4f;
+
+        var v1 = new Vector3f(half, -half, 0).rotate(rotation).add(center);
+        var v2 = new Vector3f(half, half, 0).rotate(rotation).add(center);
+        var v3 = new Vector3f(-half, half, 0).rotate(rotation).add(center);
+        var v4 = new Vector3f(-half, -half, 0).rotate(rotation).add(center);
+
+        var light = LightTexture.FULL_BRIGHT;
+
+        buffer.addVertex(v1.x, v1.y, v1.z).setColor(255, 255, 255, 255).setUv(1, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(0, 1, 0);
+        buffer.addVertex(v2.x, v2.y, v2.z).setColor(255, 255, 255, 255).setUv(1, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(0, 1, 0);
+        buffer.addVertex(v3.x, v3.y, v3.z).setColor(255, 255, 255, 255).setUv(0, 0).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(0, 1, 0);
+        buffer.addVertex(v4.x, v4.y, v4.z).setColor(255, 255, 255, 255).setUv(0, 1).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(0, 1, 0);
+    }
+
+    private static void spawnIonTrailParticle(ClientLevel world, DroneData droneData, DroneMoveSyncPacket movementData, Vec3 deltaDroneRot, Vec3 velocity, float targetScale, float frameTimeTicks, float chanceScale) {
+        var random = world.getRandom();
+        if (random.nextFloat() > ION_TRAIL_SPAWN_CHANCE * frameTimeTicks * chanceScale) return;
+
+        var thrusters = droneData.getIonThrusterPositions();
+        var thrusterLocal = thrusters.get(random.nextInt(thrusters.size()));
+        var localOffset = Vec3.atLowerCornerOf(thrusterLocal).scale(targetScale);
+
+        // rotate the local thruster offset by the drone's current rotation to get its world-relative offset
+        var rotatedOffset = new Vector3f((float) localOffset.x, (float) localOffset.y, (float) localOffset.z);
+        var rotationMatrix = new PoseStack();
+        rotationMatrix.mulPose(Axis.XP.rotationDegrees((float) -deltaDroneRot.x));
+        rotationMatrix.mulPose(Axis.ZP.rotationDegrees((float) -deltaDroneRot.z));
+        rotationMatrix.mulPose(Axis.YP.rotationDegrees((float) -deltaDroneRot.y));
+        rotationMatrix.last().pose().transformPosition(rotatedOffset);
+
+        var spawnPos = movementData.position().add(rotatedOffset.x, rotatedOffset.y, rotatedOffset.z);
+
+        var velocityDir = velocity.lengthSqr() > 1e-8 ? velocity.normalize() : Vec3.ZERO;
+        var driftSpeed = 0.03;
+        var vx = -velocityDir.x * driftSpeed + (random.nextDouble() - 0.5) * 0.02;
+        var vy = -velocityDir.y * driftSpeed + (random.nextDouble() - 0.5) * 0.02;
+        var vz = -velocityDir.z * driftSpeed + (random.nextDouble() - 0.5) * 0.02;
+
+        world.addParticle(ParticleContent.ION_TRAIL.get(), spawnPos.x, spawnPos.y, spawnPos.z, vx, vy, vz);
+    }
+
     private static int getMaxLight(BlockPos center, Level world) {
         var bestLight = LevelRenderer.getLightColor(world, center);
         
