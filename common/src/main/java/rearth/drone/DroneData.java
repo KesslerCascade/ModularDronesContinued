@@ -6,6 +6,7 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 import rearth.Drones;
 import rearth.drone.behaviour.*;
+import rearth.init.BlockContent;
 import rearth.init.TagContent;
 import rearth.util.Helpers;
 
@@ -35,6 +36,7 @@ public class DroneData {
     public final EnumSet<DroneBehaviour.BlockFunctions> installed;
     public final float power;
     public final List<DroneSensor> enabledSensors;
+    public final List<Vec3i> ionThrusterPositions;
     
     public DroneData(
       @NotNull List<RecordedBlock> blocks, int id, Vec3i assemblerOffset) {
@@ -56,12 +58,17 @@ public class DroneData {
         var minZ = 0;
         var maxX = 0;
         var maxZ = 0;
-        
+
+        var ionThrusters = new ArrayList<Vec3i>();
+
         for (var recordedBlock : blocks) {
-            
+
             var state = recordedBlock.state();
             if (!state.is(TagContent.THRUSTER_BLOCKS) && !state.isAir() && state.blocksMotion())
                 weight += 2;
+
+            if (state.is(BlockContent.ION_THRUSTER.get()))
+                ionThrusters.add(recordedBlock.localPos());
             
             thrust += getThrust(recordedBlock, droneFrame);
             
@@ -115,6 +122,7 @@ public class DroneData {
         this.power = thrusterRatio;
         this.installed = EnumSet.copyOf(abilities);
         this.enabledSensors = getInstalledSensors(installed);
+        this.ionThrusterPositions = ionThrusters;
     }
     
     public List<RecordedBlock> getBlocks() {
@@ -145,6 +153,10 @@ public class DroneData {
     
     public Vec3i getAssemblerOffset() {
         return assemblerOffset;
+    }
+
+    public List<Vec3i> getIonThrusterPositions() {
+        return ionThrusterPositions;
     }
     
     @Override

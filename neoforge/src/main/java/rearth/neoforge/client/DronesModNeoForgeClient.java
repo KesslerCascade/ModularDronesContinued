@@ -8,12 +8,15 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import rearth.Drones;
 import rearth.DronesClient;
+import rearth.client.particles.IonTrailParticleProvider;
 import rearth.client.renderers.DroneRenderer;
 import rearth.client.ui.render.DroneGuiPreviewRenderState;
 import rearth.client.ui.render.DroneGuiPreviewRenderer;
+import rearth.init.ParticleContent;
 
 @Mod(value = Drones.MOD_ID, dist = Dist.CLIENT)
 public class DronesModNeoForgeClient {
@@ -24,6 +27,7 @@ public class DronesModNeoForgeClient {
           DroneGuiPreviewRenderState.class,
           bufferSource -> new DroneGuiPreviewRenderer(bufferSource, Minecraft.getInstance().getBlockEntityRenderDispatcher())
         ));
+        eventBus.addListener((RegisterParticleProvidersEvent event) -> event.registerSpriteSet(ParticleContent.ION_TRAIL.get(), IonTrailParticleProvider::new));
     }
 
     @EventBusSubscriber(modid = Drones.MOD_ID, value = Dist.CLIENT)

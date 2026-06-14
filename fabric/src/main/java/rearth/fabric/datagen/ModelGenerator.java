@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.ConditionBuilder;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -19,6 +21,7 @@ import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.renderer.item.EmptyModel;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
@@ -34,10 +37,12 @@ public class ModelGenerator extends FabricModelProvider {
 
     @Override
     public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
+
         registerNonTemplateModelBlock(BlockContent.WOOD_ROTOR.get(), blockStateModelGenerator);
         registerNonTemplateModelBlock(BlockContent.IRON_ROTOR.get(), blockStateModelGenerator);
-        registerNonTemplateModelBlock(BlockContent.ION_THRUSTER.get(), blockStateModelGenerator);
-        registerNonTemplateModelBlock(BlockContent.DRILL.get(), blockStateModelGenerator);
+        blockStateModelGenerator.createNonTemplateModelBlock(BlockContent.WOOD_ROTOR.get());
+        blockStateModelGenerator.createNonTemplateModelBlock(BlockContent.IRON_ROTOR.get());
+        registerIonThruster(BlockContent.ION_THRUSTER.get(), blockStateModelGenerator);
         registerHorizontalFacing(BlockContent.DRILL.get(), blockStateModelGenerator);
         registerController(BlockContent.ASSEMBLER_CONTROLLER.get(), blockStateModelGenerator);
         registerFrame(BlockContent.ASSEMBLER_FRAME.get(), blockStateModelGenerator);
@@ -63,6 +68,26 @@ public class ModelGenerator extends FabricModelProvider {
                     .select(Direction.WEST, VariantMutator.Y_ROT.withValue(Quadrant.R90))
                     .select(Direction.NORTH, VariantMutator.Y_ROT.withValue(Quadrant.R180))
                     .select(Direction.EAST, VariantMutator.Y_ROT.withValue(Quadrant.R270)))
+        );
+    }
+    
+    public void registerIonThruster(Block block, BlockModelGenerators blockStateModelGenerator) {
+        var model = ModelLocationUtils.getModelLocation(block);
+        var armModel = Identifier.fromNamespaceAndPath("drones", "block/ion_thruster_arm");
+
+        var baseVariant = new MultiVariant(WeightedList.of(new Variant(model)));
+
+        blockStateModelGenerator.blockStateOutput.accept(
+          MultiPartGenerator.multiPart(block)
+            .with(baseVariant)
+            .with(new ConditionBuilder().term(BlockStateProperties.NORTH, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R0)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.SOUTH, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R180)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.EAST, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R90)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.WEST, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R270)))))
         );
     }
 
