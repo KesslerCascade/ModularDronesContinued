@@ -1,17 +1,14 @@
 package rearth.client.particles;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
-import rearth.Drones;
+import net.minecraft.client.particle.SpriteSet;
+import net.minecraft.client.renderer.LightTexture;
 
 public class IonTrailParticle extends SingleQuadParticle {
 
-    protected IonTrailParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd) {
-        super(level, x, y, z);
+    protected IonTrailParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd, SpriteSet sprites) {
+        super(level, x, y, z, xd, yd, zd, sprites.first());
         this.xd = xd;
         this.yd = yd;
         this.zd = zd;
@@ -22,46 +19,22 @@ public class IonTrailParticle extends SingleQuadParticle {
         this.quadSize = 0.05f * (this.random.nextFloat() * 0.5f + 0.5f);
         this.setColor(0.6f, 0.85f, 1f);
         this.alpha = 0.8f;
+        this.setSpriteFromAge(sprites);
     }
 
     @Override
-    public void render(VertexConsumer buffer, Camera camera, float partialTicks) {
-        this.alpha = 0.8f * Math.max(0f, 1f - ((float) this.age + partialTicks) / (float) this.lifetime);
-
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(com.mojang.blaze3d.platform.GlStateManager.SourceFactor.SRC_ALPHA, com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE);
-        RenderSystem.setShaderTexture(0, Drones.id("textures/particle/ion_trail.png"));
-
-        super.render(buffer, camera, partialTicks);
+    public void tick() {
+        super.tick();
+        this.alpha = 0.8f * Math.max(0f, 1f - (float) this.age / (float) this.lifetime);
     }
 
     @Override
     protected int getLightColor(float partialTick) {
-        return net.minecraft.client.renderer.LightTexture.FULL_BRIGHT;
+        return LightTexture.FULL_BRIGHT;
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
-        return ParticleRenderType.CUSTOM;
-    }
-
-    @Override
-    protected float getU0() {
-        return 0f;
-    }
-
-    @Override
-    protected float getU1() {
-        return 1f;
-    }
-
-    @Override
-    protected float getV0() {
-        return 0f;
-    }
-
-    @Override
-    protected float getV1() {
-        return 1f;
+    protected SingleQuadParticle.Layer getLayer() {
+        return SingleQuadParticle.Layer.TRANSLUCENT;
     }
 }

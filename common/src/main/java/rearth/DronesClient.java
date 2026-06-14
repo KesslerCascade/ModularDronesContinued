@@ -39,6 +39,7 @@ public final class DronesClient {
             RenderTypeRegistry.register(entry.getValue(), entry.getKey().get());
         }
 
+
     }
     
     public static void onAssembleScreenPacket(NetworkContent.OpenDroneScreenPacket packet, NetworkManager.PacketContext context) {

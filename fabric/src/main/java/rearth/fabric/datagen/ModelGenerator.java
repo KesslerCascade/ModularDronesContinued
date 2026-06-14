@@ -6,6 +6,8 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.ConditionBuilder;
+import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
@@ -18,21 +20,9 @@ import net.minecraft.client.renderer.block.model.VariantMutator;
 import net.minecraft.client.renderer.item.EmptyModel;
 import net.minecraft.client.renderer.item.properties.select.DisplayContext;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.ItemModelGenerators;
-import net.minecraft.data.models.blockstates.Condition;
-import net.minecraft.data.models.blockstates.MultiPartGenerator;
-import net.minecraft.data.models.blockstates.MultiVariantGenerator;
-import net.minecraft.data.models.blockstates.PropertyDispatch;
-import net.minecraft.data.models.blockstates.Variant;
-import net.minecraft.data.models.blockstates.VariantProperties;
-import net.minecraft.data.models.model.ModelLocationUtils;
-import net.minecraft.data.models.model.ModelTemplates;
-import net.minecraft.data.models.model.TextureMapping;
-import net.minecraft.data.models.model.TextureSlot;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import rearth.init.BlockContent;
@@ -79,19 +69,21 @@ public class ModelGenerator extends FabricModelProvider {
     
     public void registerIonThruster(Block block, BlockModelGenerators blockStateModelGenerator) {
         var model = ModelLocationUtils.getModelLocation(block);
-        var armModel = ResourceLocation.fromNamespaceAndPath("drones", "block/ion_thruster_arm");
+        var armModel = Identifier.fromNamespaceAndPath("drones", "block/ion_thruster_arm");
+
+        var baseVariant = new MultiVariant(WeightedList.of(new Variant(model)));
 
         blockStateModelGenerator.blockStateOutput.accept(
           MultiPartGenerator.multiPart(block)
-            .with(Variant.variant().with(VariantProperties.MODEL, model))
-            .with(Condition.condition().term(BlockStateProperties.NORTH, true),
-              Variant.variant().with(VariantProperties.MODEL, armModel).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R0))
-            .with(Condition.condition().term(BlockStateProperties.SOUTH, true),
-              Variant.variant().with(VariantProperties.MODEL, armModel).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180))
-            .with(Condition.condition().term(BlockStateProperties.EAST, true),
-              Variant.variant().with(VariantProperties.MODEL, armModel).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90))
-            .with(Condition.condition().term(BlockStateProperties.WEST, true),
-              Variant.variant().with(VariantProperties.MODEL, armModel).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270))
+            .with(baseVariant)
+            .with(new ConditionBuilder().term(BlockStateProperties.NORTH, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R0)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.SOUTH, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R180)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.EAST, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R90)))))
+            .with(new ConditionBuilder().term(BlockStateProperties.WEST, true),
+              new MultiVariant(WeightedList.of(new Variant(armModel).with(VariantMutator.Y_ROT.withValue(Quadrant.R270)))))
         );
     }
 

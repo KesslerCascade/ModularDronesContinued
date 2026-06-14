@@ -7,8 +7,7 @@
     },
     {
       "apply": {
-        "model": "drones:block/ion_thruster_arm",
-        "y": 0
+        "model": "drones:block/ion_thruster_arm"
       },
       "when": {
         "north": "true"

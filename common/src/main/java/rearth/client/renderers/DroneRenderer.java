@@ -28,6 +28,12 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OrderedSubmitNodeCollector;
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.MovingBlockRenderState;
@@ -63,7 +69,28 @@ public class DroneRenderer {
     private static final HashMap<Player, Vec3> lastPositions = new HashMap<>();
     private static final HashMap<Player, Vec3> lastRotations = new HashMap<>();
 
-    private static final RenderType ION_GLOW_RENDER_TYPE = RenderType.eyes(Drones.id("textures/block/ion_glow.png"));
+    // Mirrors RenderPipelines.EYES, but with additive blending instead of translucent, so the
+    // ion glow texture's black areas (intended as fully transparent) don't render as opaque black.
+    private static final RenderPipeline ION_GLOW_PIPELINE = RenderPipeline.builder()
+      .withLocation("pipeline/drones_ion_glow")
+      .withVertexShader("core/entity")
+      .withFragmentShader("core/entity")
+      .withShaderDefine("EMISSIVE")
+      .withShaderDefine("NO_OVERLAY")
+      .withShaderDefine("NO_CARDINAL_LIGHTING")
+      .withSampler("Sampler0")
+      .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+      .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+      .withUniform("Fog", UniformType.UNIFORM_BUFFER)
+      .withBlend(BlendFunction.LIGHTNING)
+      .withDepthWrite(false)
+      .withVertexFormat(DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS)
+      .build();
+
+    private static final RenderType ION_GLOW_RENDER_TYPE = RenderType.create(
+      "drones_ion_glow",
+      RenderSetup.builder(ION_GLOW_PIPELINE).withTexture("Sampler0", Drones.id("textures/block/ion_glow.png")).sortOnUpload().createRenderSetup()
+    );
     private static final float ION_GLOW_PULSE_SPEED = 2.0f;
     private static final float ION_GLOW_PULSE_DEPTH = 0.3f;
     private static final float ION_TRAIL_SPAWN_CHANCE = 1f / 8f;
@@ -210,6 +237,14 @@ public class DroneRenderer {
 
             // render additive glow billboards for ion thruster blocks
             if (!ionGlowPositions.isEmpty()) {
+                // Flush the drone's block geometry to the framebuffer first, so the depth buffer is
+                // populated before the glow (which doesn't write depth) is drawn. Without this, the
+                // glow's shared buffer gets flushed before the blocks' fixed buffers, causing the
+                // blocks to overwrite the glow even where the glow should render in front of them.
+                if (vertexConsumers instanceof MultiBufferSource.BufferSource bufferSource) {
+                    bufferSource.endBatch();
+                }
+
                 var glowBuffer = vertexConsumers.getBuffer(ION_GLOW_RENDER_TYPE);
                 var time = System.currentTimeMillis() / 1000.0;
                 for (var i = 0; i < ionGlowPositions.size(); i++) {

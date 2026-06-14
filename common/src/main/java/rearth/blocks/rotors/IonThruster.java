@@ -2,8 +2,10 @@ package rearth.blocks.rotors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -44,7 +46,7 @@ public class IonThruster extends Block {
     }
 
     @Override
-    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess scheduledTickAccess, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, RandomSource random) {
         switch (direction) {
             case NORTH -> state = state.setValue(NORTH, canConnect(level, pos.relative(Direction.NORTH)));
             case SOUTH -> state = state.setValue(SOUTH, canConnect(level, pos.relative(Direction.SOUTH)));
@@ -82,7 +84,7 @@ public class IonThruster extends Block {
         }
     }
 
-    private boolean canConnect(LevelAccessor level, BlockPos pos) {
+    private boolean canConnect(LevelReader level, BlockPos pos) {
         return level.getBlockState(pos).isSolid();
     }
 
