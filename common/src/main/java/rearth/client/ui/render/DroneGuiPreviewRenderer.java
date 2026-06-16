@@ -32,7 +32,7 @@ public class DroneGuiPreviewRenderer extends PictureInPictureRenderer<DroneGuiPr
     protected void renderToTexture(DroneGuiPreviewRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector) {
 
         var minecraft = Minecraft.getInstance();
-        minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.ITEMS_3D);
+        minecraft.gameRenderer.lighting().setupFor(Lighting.Entry.ITEMS_3D);
 
         var droneRenderScale = state.droneData().getRenderScale();
         poseStack.scale(droneRenderScale, droneRenderScale, droneRenderScale);

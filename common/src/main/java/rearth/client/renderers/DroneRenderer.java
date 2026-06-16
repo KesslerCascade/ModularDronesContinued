@@ -321,7 +321,7 @@ public class DroneRenderer {
         var model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state);
         var parts = new ArrayList<BlockStateModelPart>();
         model.collectParts(RandomSource.create(state.getSeed(pos)), parts);
-        var renderType = model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT) ? Sheets.translucentBlockSheet() : Sheets.cutoutBlockSheet();
+        var renderType = model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT) ? Sheets.translucentBlockItemSheet() : Sheets.cutoutBlockItemSheet();
         var tintLayers = computeTintLayers(world, state, pos);
         collector.submitBlockModel(poseStack, renderType, parts, tintLayers, packedLight, packedOverlay, 0);
     }

@@ -23,7 +23,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.locale.Language;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
@@ -172,7 +172,7 @@ public class DroneCreatorScreen extends Screen {
 
                 for (int i = 0; i < 5; i++) {
                     var tooltipKey = "drones.ability." + ability.name().toLowerCase() + "." + i;
-                    if (I18n.exists(tooltipKey)) {
+                    if (Language.getInstance().has(tooltipKey)) {
                         tooltipLines.add(Component.translatable(tooltipKey));
                     }
                 }
