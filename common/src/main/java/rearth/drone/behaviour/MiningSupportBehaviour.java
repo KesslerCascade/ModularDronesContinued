@@ -132,7 +132,7 @@ public class MiningSupportBehaviour implements DroneBehaviour {
     
     @Override
     public float getCurrentYaw() {
-        return Helpers.calculateYaw(drone.currentPosition, target.getCenter());
+        return Helpers.calculateYaw(drone.currentPosition, Vec3.atCenterOf(target));
     }
     
     @Override
@@ -143,7 +143,7 @@ public class MiningSupportBehaviour implements DroneBehaviour {
     private Vec3 getTargetPosition() {
         
         var playerPos = owner.getEyePosition();
-        var blockCenter = target.getCenter();
+        var blockCenter = Vec3.atCenterOf(target);
         
         var playerDir = blockCenter.subtract(playerPos).normalize();
         var playerUp = new Vec3(0, 1, 0);

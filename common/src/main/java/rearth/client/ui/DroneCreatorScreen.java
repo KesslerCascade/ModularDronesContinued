@@ -261,16 +261,12 @@ public class DroneCreatorScreen extends Screen {
     public void assembleDrone() {
         
         if (!this.droneData.isValid()) {
-            this.minecraft.getToastManager().addToast(  // says "assembled, drone has been added to inv"
-              SystemToast.multiline(this.minecraft, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.translatable("drone.message.invalid_drone"), Component.translatable("drone.message.invalid_drone_desc"))
-            );
-            
+            SystemToast.add(this.minecraft.gui.toastManager(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.translatable("drone.message.invalid_drone"), Component.translatable("drone.message.invalid_drone_desc"));
+
             return;
         }
-        
-        this.minecraft.getToastManager().addToast(  // says "assembled, drone has been added to inv"
-          SystemToast.multiline(this.minecraft, SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.translatable("drone.message.assembled"), Component.translatable("drone.message.assembled_desc"))
-        );
+
+        SystemToast.add(this.minecraft.gui.toastManager(), SystemToast.SystemToastId.NARRATOR_TOGGLE, Component.translatable("drone.message.assembled"), Component.translatable("drone.message.assembled_desc"));
         
         NetworkManager.sendToServer(new ControllerBlockEntity.AssembleDronePacket(nameField.getValue(), machinePos));
         

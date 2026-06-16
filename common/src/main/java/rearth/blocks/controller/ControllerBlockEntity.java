@@ -145,7 +145,7 @@ public class ControllerBlockEntity extends BlockEntity {
         var dataZ = 0d;
 
         for (var pos : positions) {
-            var center = pos.getCenter();
+            var center = Vec3.atCenterOf(pos);
             dataX += center.x;
             dataY += center.y;
             dataZ += center.z;
@@ -233,7 +233,7 @@ public class ControllerBlockEntity extends BlockEntity {
             level.setBlockAndUpdate(worldPos, rotatedBlock.state());
 
             if (level instanceof ServerLevel serverWorld) {
-                var spawnAt = worldPos.getCenter();
+                var spawnAt = Vec3.atCenterOf(worldPos);
                 serverWorld.sendParticles(ParticleTypes.GUST, spawnAt.x, spawnAt.y, spawnAt.z, 1, 0, 0.1f, 0, 0.5f);
             }
         }
@@ -277,7 +277,7 @@ public class ControllerBlockEntity extends BlockEntity {
             level.setBlockAndUpdate(worldPos, Blocks.AIR.defaultBlockState());
             
             if (level instanceof ServerLevel serverWorld) {
-                var spawnAt = worldPos.getCenter();
+                var spawnAt = Vec3.atCenterOf(worldPos);
                 serverWorld.sendParticles(ParticleTypes.GUST, spawnAt.x, spawnAt.y, spawnAt.z, 1, 0, 0.1f, 0, 0.5f);
             }
             
