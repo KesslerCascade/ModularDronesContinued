@@ -59,7 +59,7 @@ public class DroneGuiPreviewRenderer extends PictureInPictureRenderer<DroneGuiPr
                 var blockEntity = blockEntityProvider.newBlockEntity(new BlockPos(localPos), blockState);
                 if (blockEntity != null) {
                     blockEntity.setLevel(minecraft.level);
-                    var renderState = dispatcher.tryExtractRenderState(blockEntity, 0, null);
+                    var renderState = dispatcher.tryExtractRenderState(blockEntity, 0, null, false);
                     if (renderState != null) {
                         dispatcher.submit(renderState, poseStack, submitNodeCollector, cameraRenderState);
                     }

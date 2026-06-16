@@ -185,7 +185,7 @@ public class DroneRenderer {
                         blockEntity.setLevel(world);
                         var dispatcher = Minecraft.getInstance().getBlockEntityRenderDispatcher();
                         dispatcher.prepare(camera.position());
-                        var renderState = dispatcher.tryExtractRenderState(blockEntity, 0, null);
+                        var renderState = dispatcher.tryExtractRenderState(blockEntity, 0, null, false);
                         if (renderState != null) {
                             dispatcher.submit(renderState, matrices, submitNodeCollector, cameraRenderState);
                         }
