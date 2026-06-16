@@ -3,14 +3,15 @@ layout: default
 title: Modular Drones
 ---
 
+<img src="assets/images/hero-image.png" alt="Modular Drones" align="right" style="max-width: 50%; height: auto; margin-left: 2em;">
+
 # Modular Drones
 
 Modular Drones lets you build your own personal drone out of regular blocks, then carry it around as a small item. Equip
 it, and it'll hover behind you, helping out based on the blocks it's made of — fighting off enemies, mining alongside
 you, picking up loot, lighting your way, and more.
 
-<!-- IMAGE: hero screenshot - a player with a flying drone hovering nearby, ideally showing off a few visible
-abilities (e.g. a rotor, a dispenser, a lodestone) -->
+<div style="clear: both;"></div>
 
 ## Get started
 

@@ -11,9 +11,6 @@ A drone's abilities are determined entirely by the blocks it's built from, and i
 placed. "Front" refers to the side of the drone that faced you when you placed the Drone Assembly Controller it was
 built on.
 
-<!-- IMAGE: annotated screenshot/diagram of a sample drone pointing out the front/back/down directions and a few
-ability-enabling blocks -->
-
 ## Flight (Rotors)
 
 **Blocks:** Wooden Rotor, Advanced Rotor, or Ion Thruster
@@ -24,7 +21,11 @@ anywhere on the drone.
 Every drone needs at least one rotor to fly. The three tiers provide increasing amounts of thrust — Wooden Rotors are
 the weakest and cheapest, Advanced Rotors are a solid mid-tier upgrade, and Ion Thrusters provide the most power. Bigger/heavier drones need more or stronger rotors to stay nimble.
 
-<!-- IMAGE: screenshot comparing Wooden Rotor, Advanced Rotor, and Ion Thruster blocks side by side -->
+<table><tr>
+<td><a href="assets/images/flight-woodrotor.jpg" data-lightbox="flight" data-caption="The wooden rotor is basic, cheap, and functional"><img src="assets/images/flight-woodrotor.jpg" alt="Screenshot of a drone flying with wooden rotors"></a></td>
+<td><a href="assets/images/flight-advrotor.jpg" data-lightbox="flight" data-caption="The advenced rotor is a step up in terms of both cost and flight capability"><img src="assets/images/flight-advrotor.jpg" alt="Screenshot of a drone flying with advanced rotors"></a></td>
+<td><a href="assets/images/flight-ionthruster.jpg" data-lightbox="flight" data-caption="The ion thruster provides enough power to keep even the biggest drones moving swiftly"><img src="assets/images/flight-ionthruster.jpg" alt="Screenshot of a drone flying with ion thrusters"></a></td>
+</tr></table>
 
 ## Arrow Launcher
 
@@ -35,7 +36,7 @@ the weakest and cheapest, Advanced Rotors are a solid mid-tier upgrade, and Ion 
 Automatically fires arrows at hostile enemies within range, without consuming any arrows. This is always active once
 the drone has line of sight to a target.
 
-<!-- IMAGE: screenshot of a dispenser mounted on the front of a drone, firing an arrow at a mob -->
+<a href="assets/images/ranged-attack.jpg" data-lightbox="ranged-attack" data-caption="No more creepers sneaking up without warning"><img src="assets/images/ranged-attack.jpg" alt="Screenshot of a drone with a dispenser firing an arrow at a Husk"></a>
 
 ## Melee Attack
 
@@ -46,7 +47,7 @@ the drone has line of sight to a target.
 The drone will fly toward nearby hostile enemies (or enemies the player has recently attacked) and attack them on
 contact using the damaging block.
 
-<!-- IMAGE: screenshot of a drone with a cactus/magma block mounted on front, attacking a mob -->
+<a href="assets/images/melee-attack.jpg" data-lightbox="melee-attack" data-caption="Avast, scoundrel!"><img src="assets/images/melee-attack.jpg" alt="Screenshot of a drone with a magma block going head to head with a Husk"></a>
 
 ## Mining Support
 
@@ -57,7 +58,7 @@ contact using the damaging block.
 While the player is breaking a block, a drone with this ability will fly over and help break the same block, speeding
 up mining. The drone needs to stay reasonably close to the player to assist.
 
-<!-- IMAGE: screenshot of a drone with a drill mounted on front, helping mine a block -->
+<a href="assets/images/mining-support.jpg" data-lightbox="mining-support" data-caption="Diamonds? Ancient Debris? Obsidian? No problem!"><img src="assets/images/mining-support.jpg" alt="Screenshot of a drone with a drill attachment helping a player mine diamond ore blocks"></a>
 
 ## Item Pickup
 
@@ -68,7 +69,7 @@ up mining. The drone needs to stay reasonably close to the player to assist.
 The drone will collect nearby dropped items and carry them back to the player, depositing them into the player's
 inventory.
 
-<!-- IMAGE: screenshot of a drone with a lodestone on its underside, carrying picked-up items -->
+<a href="assets/images/item-pickup.jpg" data-lightbox="item-pickup" data-caption="Allay eat your heart out!"><img src="assets/images/item-pickup.jpg" alt="Screenshot of a drone with a lodestone carrying a diamond back to the player"></a>
 
 ## Light
 
@@ -78,7 +79,7 @@ inventory.
 
 The drone glows and emits light while flying, useful for lighting up dark areas as you explore.
 
-<!-- IMAGE: screenshot of a drone with a lantern attached, glowing in a dark area -->
+<a href="assets/images/light.jpg" data-lightbox="light" data-caption="Don't follow the lights, but what if the light follows you?"><img src="assets/images/light.jpg" alt="Screenshot of a drone with a lantern lighting up a dark cave as the player explores"></a>
 
 ## Laser Beam
 
@@ -89,4 +90,7 @@ The drone glows and emits light while flying, useful for lighting up dark areas 
 A more powerful alternative to the Arrow Launcher — fires a continuous beam at nearby hostiles. If a drone has both a
 beacon and a dispenser, the laser beam takes priority.
 
-<!-- IMAGE: screenshot of a drone firing a laser beam from a front-mounted beacon -->
+<a href="assets/images/laser.jpg" data-lightbox="laser" data-caption="25% of the battle"><img src="assets/images/laser.jpg" alt="Screenshot of a drone killing a Husk with a laser blast"></a>
+
+<script type="text/javascript" src="assets/js/lightbox3.min.js"></script>
+<link rel="stylesheet" href="assets/css/lightbox3.css">
