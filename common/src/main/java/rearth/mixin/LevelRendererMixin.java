@@ -15,7 +15,7 @@ import rearth.client.renderers.DroneRenderer;
 public abstract class LevelRendererMixin {
 
     @Inject(
-      method = "submitFeatures(Lnet/minecraft/client/renderer/LevelRenderState;Lnet/minecraft/client/renderer/SubmitNodeCollector;Z)V",
+      method = "submitFeatures(Lnet/minecraft/client/renderer/state/level/LevelRenderState;Lnet/minecraft/client/renderer/SubmitNodeCollector;Z)V",
       at = @At("TAIL")
     )
     private void drones$submitDroneFeatures(

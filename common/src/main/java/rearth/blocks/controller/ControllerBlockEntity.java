@@ -258,7 +258,7 @@ public class ControllerBlockEntity extends BlockEntity {
             return;
         }
         
-        var createdStack = new ItemStack(ItemContent.POCKET_DRONE);
+        var createdStack = new ItemStack(ItemContent.POCKET_DRONE.get());
         createdStack.set(DataComponents.CUSTOM_NAME, Component.literal(name));
         createdStack.set(ComponentContent.DRONE_DATA_TYPE.get(), droneData);
 

@@ -1,5 +1,6 @@
 package rearth.mixin;
 
+import dev.architectury.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -25,6 +26,9 @@ public abstract class GameRendererMixin {
       index = 2
     )
     private List<PictureInPictureRenderer<? extends PictureInPictureRenderState>> drones$addPreviewRenderer(List<PictureInPictureRenderer<? extends PictureInPictureRenderState>> renderers) {
+        // NeoForge patches GuiRenderer.<init> to use PictureInPictureRendererRegistration records instead;
+        // adding a raw renderer here would cause a ClassCastException. NeoForge registers via its own event.
+        if (Platform.isNeoForge()) return renderers;
         var extended = new ArrayList<>(renderers);
         extended.add(new DroneGuiPreviewRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher()));
         return extended;
