@@ -210,7 +210,7 @@ public class DroneRenderer {
                   null,
                   0
                 );
-                itemRenderState.submit(matrices, submitNodeCollector, itemLight, OverlayTexture.NO_OVERLAY, -1);
+                itemRenderState.submit(matrices, submitNodeCollector, itemLight, OverlayTexture.NO_OVERLAY, 0);
                 matrices.popPose();
             }
 
